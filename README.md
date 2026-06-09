@@ -1,9 +1,9 @@
 # Contribution [#]: [Issue Title]
 
-**Contribution Number:** 1
-**Student:** Claire
-**Issue:** https://github.com/vectordotdev/vector/issues/23659
-**Status:** Phase I, In Progress
+- **Contribution Number:** 1
+- **Student:** Claire
+- **Issue:** https://github.com/vectordotdev/vector/issues/23659
+- **Status:** Phase I Complete
 ---
 
 ## Why I Chose This Issue
