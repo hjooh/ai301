@@ -1,4 +1,4 @@
-# Contribution [#]: [Issue Title]
+# Contribution 1: Investigate and eliminate allow statements
 
 - **Contribution Number:** 1
 - **Student:** Claire
