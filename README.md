@@ -15,19 +15,36 @@ I chose this issue because of a few reasons: it was tagged as a `good-first-issu
 
 ### Problem Description
 
-[In your own words, what's broken or missing?]
+The Vector codebase contains numerous `#[allow(...)]` and `#![allow(...)]` statements that suppress Clippy lints. Some of these are stale (the code they were written for has since changed) or are hiding real issues like dead code, unsafe casts, or extra complexity. Because `#[allow]` silently hides warnings with no expiration mechanism, they can accumulate over time without anyone noticing.
 
 ### Expected Behavior
 
-[What should happen?]
+Clippy should run cleanly with no supressed warnings, with all lints either passing naturally (no issues) or have a documented, justifiable reason for being supressed.
 
 ### Current Behavior
 
-[What actually happens?]
+Multiple `#[allow(...)]` statements in the codebase silence Clippy lints, potential hiding bugs or dead code (as mentioned in the issue description).
 
 ### Affected Components
 
-[Which parts of the codebase are involved?]
+This issue affects all parts of the codebase where an `#[allow]` statement exists. A search across the repo finds 287 affected files, spanning every major component area:
+
+- **`src/sources/`**: kafka, syslog, file, journald, splunk_hec, gcp_pubsub, aws_s3, dnstap, and others
+- **`src/sinks/`** : elasticsearch, datadog, clickhouse, loki, prometheus, influxdb, aws_cloudwatch, and others
+- **`src/transforms/`** : reduce, sample, aws_ec2_metadata
+- **`src/config/`** : mod, format, transform, unit_test components
+- **`src/topology/`** : mod, running, schema, task
+- **`src/internal_events/`** : kafka, file, socket, prometheus, and others
+- **`src/components/`** : validation runner, resources
+- **`lib/vector-core/`** : event system, metrics, schema, fanout, TLS, transforms
+- **`lib/vector-buffers/`** : disk_v2, topology builder, channel
+- **`lib/vector-config/`** : schema generation, macros, validation
+- **`lib/vector-common/`** : finalization, shutdown, internal events
+- **`lib/codecs/`** : encoding/decoding formats (avro, protobuf, native JSON)
+- **`lib/vector-vrl/`** : VRL functions, enrichment, dnstap parser
+- **`vdev/`** : development CLI tool commands
+- **`tests/`** : integration and e2e tests
+- **`build.rs`** : build script
 
 ---
 
@@ -35,19 +52,21 @@ I chose this issue because of a few reasons: it was tagged as a `good-first-issu
 
 ### Environment Setup
 
-[Notes on setting up your local development environment - challenges you faced, how you solved them]
+My build failed because the wrong perl was being used (OpenSSL requires a Windows-native Perl), but I was using Cygwin Perl which creates Unix-style paths. I had to install Strawberry Perl and add it to my path (before Cygwin perl), which fixed the issue.
 
 ### Steps to Reproduce
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Pick a specific `#[allow]` statement in the codebase
+2. Remove it
+3. Run `make check-clippy`
+4. Lint warning that was being hidden should be shown
+5. Determine whether a real issue was being masked, or this is a false positive
 
 ### Reproduction Evidence
 
-- **Commit showing reproduction:** [Link to commit in your fork]
-- **Screenshots/logs:** [If applicable]
-- **My findings:** [What you discovered during reproduction]
+- **Commit showing reproduction:** https://github.com/hjooh/vector
+- **Screenshots/logs:** https://github.com/hjooh/ai301/blob/main/wk2/issue-reproduction.md
+- **My findings:** As expected, removing certain allow statements did not trigger linter errors, while others did, and to successfully avoid these errors, there are two options: keep the statement in (with justification) or resolve the issue that the statement was covering up. More information can be found above in the screenshots/logs link. 
 
 ---
 
@@ -55,102 +74,41 @@ I chose this issue because of a few reasons: it was tagged as a `good-first-issu
 
 ### Analysis
 
-[Your analysis of the root cause - what's causing the issue?]
+Rust's `#[allow(...)]` attribute suppresses Clippy lints indefinitely with no built-in expiry mechanism. Over time, these accumulate in the Vector codebase. Some were added for legitimate reasons that no longer apply, some mask genuinely problematic code patterns, and some have no documented justification. Because `#[allow]` is silent by design, there is no automatic signal when a suppression becomes stale.
 
 ### Proposed Solution
 
-[High-level description of your fix approach]
+Audit `#[allow(...)]` and `#![allow(...)]` instances across the codebase. For each:
+- If the lint no longer fires, remove the `#[allow]` entirely (it was stale)
+- If the lint fires and reveals a real issue, fix the underlying code if the change is minimal (e.g. removing unused code, adding `?`); if the fix is non-trivial (e.g. signature changes, multi-file refactor), restore the `#[allow]` temporarily with a comment and open a separate issue linking to it
+- If the lint fires but suppression is genuinely justified (e.g. macro-generated code, intentional behavior), keep it with a comment explaining why, or replace with `#[expect]` if the justification may eventually go away
 
 ### Implementation Plan
 
 Using UMPIRE framework (adapted):
 
-**Understand:** [Restate the problem]
+**Understand:** The Vector codebase contains `#[allow(...)]` statements that suppress Clippy lints, potentially hiding bugs or accumulating as stale suppressions with no mechanism for cleanup.
 
-**Match:** [What similar patterns/solutions exist in the codebase?]
+**Match:** Prior accepted PRs demonstrate the pattern. PR #24366 removed `#[allow(dead_code)]` from two public functions in the buffers crate where the suppression was no longer needed. PR #23991 removed `clippy::unnecessary_wraps` but kept `clippy::print_stdout` and `clippy::unused_self` with documented justification (intentional CLI output and macro-generated signatures respectively).
 
-**Plan:** [Step-by-step implementation plan]
-1. [Modify file X to do Y]
-2. [Add function Z]
-3. [Update tests]
+**Plan:**
+1. Search the codebase for all `#[allow(...)]` and `#![allow(...)]` instances
+2. For each instance, remove the `#[allow]` and run `make check-clippy`
+3. If the lint no longer fires: remove the allow 
+4. If the lint fires: determine if it's a real issue (fix the code) or a false positive (restore with a justifying comment or replace with `#[expect]`)
+5. Add a changelog entry per Vector's contribution guidelines
+6. Open a PR with a title following the Conventional Commits spec
 
-**Implement:** [Link to your branch/commits as you work]
+**Implement:** [Link to branch/commits as work progresses]
 
-**Review:** [Self-review checklist - does it follow the project's contribution guidelines?]
+**Review:**
+- [ ] `make check-clippy` passes with no new suppressions introduced
+- [ ] `make fmt` and `make check-fmt` pass
+- [ ] Changelog entry added under `changelog.d/`
+- [ ] PR title follows Conventional Commits format
+- [ ] No `#[allow]` retained without a justifying comment
 
-**Evaluate:** [How will you verify it works?]
-
----
-
-## Testing Strategy
-
-### Unit Tests
-
-- [ ] Test case 1: [Description]
-- [ ] Test case 2: [Description]
-- [ ] Test case 3: [Description]
-
-### Integration Tests
-
-- [ ] Integration scenario 1
-- [ ] Integration scenario 2
-
-### Manual Testing
-
-[What you tested manually and results]
+**Evaluate:** Running `make check-clippy` on the modified files produces no warnings for the targeted lints, confirming the suppressions have been resolved rather than merely relocated.
 
 ---
 
-## Implementation Notes
-
-### Week [X] Progress
-
-[What you built this week, challenges faced, decisions made]
-
-### Week [Y] Progress
-
-[Continue documenting as you work]
-
-### Code Changes
-
-- **Files modified:** [List]
-- **Key commits:** [Links to important commits]
-- **Approach decisions:** [Why you chose certain approaches]
-
----
-
-## Pull Request
-
-**PR Link:** [GitHub PR URL when submitted]
-
-**PR Description:** [Draft or final PR description - much of the content above can be adapted]
-
-**Maintainer Feedback:**
-- [Date]: [Summary of feedback received]
-- [Date]: [How you addressed it]
-
-**Status:** [Awaiting review / Iterating / Approved / Merged]
-
----
-
-## Learnings & Reflections
-
-### Technical Skills Gained
-
-[What you learned technically]
-
-### Challenges Overcome
-
-[What was hard and how you solved it]
-
-### What I'd Do Differently Next Time
-
-[Reflection on your process]
-
----
-
-## Resources Used
-
-- [Link to helpful documentation]
-- [Tutorial or Stack Overflow post that helped]
-- [GitHub issues or discussions that helped]
