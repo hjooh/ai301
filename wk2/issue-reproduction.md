@@ -38,7 +38,7 @@ OUTPUT:
    ...
 ```
 
-## New Run (allow statements have been removed):
+## New Run A (allow statements have been removed - CORRECTLY):
 
 Shows a successful `make cargo-clippy` run (expected behavior, as the removed statements were stale and no longer necessary).
 
@@ -98,4 +98,17 @@ OUTPUT:
    ...
 ```
 
-## New Run
+## New Run B (allow statements have been removed - INCORRECTLY)
+
+Shows an unsuccessful `make cargo-clippy` run (expected behavior, as the removed statements still necessary).
+
+```
+warning: constant `RETAIN_EVENT` is never used
+  --> src/internal_events/parser.rs:52:11
+   |
+52 | pub const RETAIN_EVENT: bool = false;
+   |           ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+```
+
