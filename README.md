@@ -3,7 +3,7 @@
 - **Contribution Number:** 1
 - **Student:** Claire
 - **Issue:** https://github.com/vectordotdev/vector/issues/23659
-- **Status:** Phase I Complete
+- **Status:** Phase III In Progress
 ---
 
 ## Why I Chose This Issue
@@ -99,7 +99,7 @@ Using UMPIRE framework (adapted):
 5. Add a changelog entry per Vector's contribution guidelines
 6. Open a PR with a title following the Conventional Commits spec
 
-**Implement:** [Link to branch/commits as work progresses]
+**Implement:** Work is ongoing. Phase III is currently in progress and additional `#[allow]` statements are being audited and removed across the codebase. Links to commits will be added as work continues and the code is in a good state to push.
 
 **Review:**
 - [ ] `make check-clippy` passes with no new suppressions introduced
