@@ -121,7 +121,7 @@ What was changed?: Removed two blanket #![allow(...)] attributes (cast_possible_
 
 Why was this PR needed?: The blanket allows were hiding potential bugs, as when a lint is suppressed crate-wide, any future cast added anywhere in vector-core would also be ignored, even if it was unsafe.
 
-What are the relevant issue numbers?: Partially addresses #23659
+What are the relevant issue numbers?: Partially addresses #23659 (https://github.com/vectordotdev/vector/issues/23659)
 
 Does this PR meet the acceptance criteria?:
 [x] make check-clippy 
