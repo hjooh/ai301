@@ -3,7 +3,7 @@
 - **Contribution Number:** 1
 - **Student:** Claire
 - **Issue:** https://github.com/vectordotdev/vector/issues/23659
-- **Status:** Phase III In Progress
+- **Status:** Phase IV In Progress (waiting for feedback on PR)
 ---
 
 ## Why I Chose This Issue
@@ -102,13 +102,34 @@ Using UMPIRE framework (adapted):
 **Implement:** Work is ongoing. Phase III is currently in progress and additional `#[allow]` statements are being audited and removed across the codebase. Links to commits will be added as work continues and the code is in a good state to push.
 
 **Review:**
-- [ ] `make check-clippy` passes with no new suppressions introduced
-- [ ] `make fmt` and `make check-fmt` pass
-- [ ] Changelog entry added under `changelog.d/`
-- [ ] PR title follows Conventional Commits format
-- [ ] No `#[allow]` retained without a justifying comment
+- [x] `make check-clippy` passes with no new suppressions introduced
+- [x] `make fmt` and `make check-fmt` pass
+- [x] PR title follows Conventional Commits format
+- [x] No `#[allow]` retained without a justifying comment
 
 **Evaluate:** Running `make check-clippy` on the modified files produces no warnings for the targeted lints, confirming the suppressions have been resolved rather than merely relocated.
 
 ---
 
+## Pull Request
+
+**PR Link:** https://github.com/vectordotdev/vector/pull/25748
+
+**PR Description:**
+
+What was changed?: Removed two blanket #![allow(...)] attributes (cast_possible_wrap, cast_sign_loss) from lib/vector-core/src/lib.rs that were silencing cast lints across the vector-core crate. Replaced them with 6 #[allow(...)] annotations at the exact locations in proto.rs, ddsketch.rs, and storage.rs, each with a comment explaining why the cast is safe.
+
+Why was this PR needed?: The blanket allows were hiding potential bugs, as when a lint is suppressed crate-wide, any future cast added anywhere in vector-core would also be ignored, even if it was unsafe.
+
+What are the relevant issue numbers?: Partially addresses #23659
+
+Does this PR meet the acceptance criteria?:
+[] make check-clippy 
+[] make check-fmt 
+[] cargo vdev test 
+
+**Maintainer Feedback:**
+- None yet
+  
+## Learnings & Reflections
+Biggest lesson: Understanding exactly what and where your PR affects the codebase will let you test and validate your changes a lot faster, especially when you have to run certain tests or checks.
