@@ -3,7 +3,7 @@
 - **Contribution Number:** 1
 - **Student:** Claire
 - **Issue:** https://github.com/vectordotdev/vector/issues/23659
-- **Status:** Phase IV In Progress (waiting for feedback on PR)
+- **Status:** Phase IV Complete (waiting for feedback on PR)
 ---
 
 ## Why I Chose This Issue
@@ -130,7 +130,6 @@ Does this PR meet the acceptance criteria?:
 [c] PR title follows repo convention
 
 **Maintainer Feedback:**
-- None yet
-  
+- PR accepted and merged!
 ## Learnings & Reflections
 Biggest lesson: Understanding exactly what and where your PR affects the codebase will let you test and validate your changes a lot faster, especially when you have to run certain tests or checks.
