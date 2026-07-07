@@ -7,3 +7,5 @@ I'm interested in this because:
 2. I've worked on projects related to randomized testing before (specifically, fuzzers), and I find this domain interesting.
 
 From reading the issue thread, I understand the current state of quickecheck and proptest rely on different versions of the rand crate, which lead to two incompatible rand versions in the dependence tree, and the goal of this task is to remove quickcheck from VRL (upstream repo) and update Vector (the downstream repo) to mainly use proptest instead. 
+
+I commented on the issue and asked a minor clarifying question to the maintainer. 
