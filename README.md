@@ -3,7 +3,7 @@
 - **Contribution Number:** 1
 - **Student:** Claire
 - **Issue:** https://github.com/vectordotdev/vector/issues/23659
-- **Status:** Phase IV Complete (waiting for feedback on PR)
+- **Status:** Phase IV Complete
 ---
 
 ## Why I Chose This Issue
