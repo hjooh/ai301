@@ -83,5 +83,5 @@ Vector PR (after VRL merges):
 
 **Commits:**
 - 598377652: chore(value): migrate Arbitrary impls from quickcheck to proptest
-- WIP PR linked [here]([url](https://github.com/vectordotdev/vrl/pull/1864))
+- WIP PR linked [here](https://github.com/vectordotdev/vrl/pull/1864)
 
