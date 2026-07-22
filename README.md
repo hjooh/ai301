@@ -69,3 +69,19 @@ Vector PR (after VRL merges):
 - cargo test -p codecs passes against the regenerated fixtures
 - Running the generate-fixtures binary twice produces byte-identical output
 
+##  Implementation Notes
+
+### VRL: quickcheck to proptest migration
+**What I built:**
+- Created proptest.rs: contains new proptest strategies for Value with float_strategy() and datetime_strategy() helpers
+- Updated keystring.rs to remove the manual quickcheck::Arbitrary impl and replaced with #[derive(proptest_derive::Arbitrary)]
+- Updated value.rs with a proptest test (replacing a quickcheck test)
+- Updated mod.rs to export the proptest module and deleted arbitrary.rs which contained the old quickcheck impl
+
+**Challenges faced:**  
+- Didn't realize that the new proptest module shadowed the name of the proptest crate (needed to use ::proptest::prelude::* to tell them apart)
+
+**Commits:**
+- 598377652: chore(value): migrate Arbitrary impls from quickcheck to proptest
+- WIP PR linked [here]([url](https://github.com/vectordotdev/vrl/pull/1864))
+
